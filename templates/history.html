@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+</head>
+<body>
+    <h1>Traffic Predictions History</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Is Holiday</th>
+            <th>Temperature</th>
+            <th>Date</th>
+            <th>Hour</th>
+            <th>Month Day</th>
+            <th>Year</th>
+            <th>Month</th>
+            <th>Weekday</th>
+            <th>Weather Type</th>
+            <th>Weather Description</th>
+            <th>Predicted Output</th>
+            <th>Traffic Condition</th>
+        </tr>
+        {% for prediction in traffic_predictions %}
+        <tr>
+            <td>{{ prediction[0] }}</td>
+            <td>{{ prediction[1] }}</td>
+            <td>{{ prediction[2] }}</td>
+            <td>{{ prediction[3] }}</td>
+            <td>{{ prediction[4] }}</td>
+            <td>{{ prediction[5] }}</td>
+            <td>{{ prediction[6] }}</td>
+            <td>{{ prediction[7] }}</td>
+            <td>{{ prediction[8] }}</td>
+            <td>{{ prediction[9] }}</td>
+            <td>{{ prediction[10] }}</td>
+            <td>{{ prediction[11] }}</td>
+            <td>{{ prediction[12] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h1>Accident Predictions History</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Weather</th>
+            <th>Road Type</th>
+            <th>Time of Day</th>
+            <th>Traffic Density</th>
+            <th>Speed Limit</th>
+            <th>Number of Vehicles</th>
+            <th>Driver Alcohol</th>
+            <th>Accident Severity</th>
+            <th>Road Condition</th>
+            <th>Vehicle Type</th>
+            <th>Driver Age</th>
+            <th>Driver Experience</th>
+            <th>Road Light Condition</th>
+            <th>Prediction</th>
+        </tr>
+        {% for prediction in accident_predictions %}
+        <tr>
+            <td>{{ prediction[0] }}</td>
+            <td>{{ prediction[1] }}</td>
+            <td>{{ prediction[2] }}</td>
+            <td>{{ prediction[3] }}</td>
+            <td>{{ prediction[4] }}</td>
+            <td>{{ prediction[5] }}</td>
+            <td>{{ prediction[6] }}</td>
+            <td>{{ prediction[7] }}</td>
+            <td>{{ prediction[8] }}</td>
+            <td>{{ prediction[9] }}</td>
+            <td>{{ prediction[10] }}</td>
+            <td>{{ prediction[11] }}</td>
+            <td>{{ prediction[12] }}</td>
+            <td>{{ prediction[13] }}</td>
+            <td>{{ prediction[14] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

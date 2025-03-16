@@ -1,0 +1,188 @@
+{% extends 'index.html' %}
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Prediction - Output</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .graph-img {
+            width: 100%; /* Make the image fit the container's width */
+            max-width: 1000px; /* Max width for large screens */
+            height: auto; /* Maintain aspect ratio */
+            object-fit: contain; /* Ensures the image maintains its aspect ratio */
+            border-radius: 10px; /* Optional: Rounded corners */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow effect */
+            margin-bottom: 20px; /* Adds space between graphs */
+        }
+        #map {
+            height: 400px; /* Fixed height for the map */
+            width: 100%; /* Full width */
+            max-width: 1000px; /* Maximum width for large screens */
+            margin: 20px auto; /* Center the map horizontally and add some margin */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            overflow: hidden; /* Ensure the map doesn't overflow its container */
+            border: 2px solid #ddd; /* Optional: Add a border */
+        }
+    </style>
+</head>
+<body>
+    <div class="prediction-container">
+        <h3>Predicted Output: {{ Prediction }}</h3>
+        <!-- Container for Graphs -->
+        <div class="graph-container">
+            <h3 class="text-success">Traffic Prediction Plots</h3>
+            <img src="{{ url_for('static', filename='traffic_comparison.png') }}" alt="Comparison Graph" class="graph-img">
+            <img src="{{ url_for('static', filename='traffic_analysis.png') }}" alt="Gauge Chart" class="graph-img">
+            <img src="{{ url_for('static', filename='traffic_analysis1.png') }}" alt="Traffic Analysis" class="graph-img">
+            <img src="{{ url_for('static', filename='traffic_trends.png') }}" alt="Traffic Trends" class="graph-img">
+        </div>
+    </div>
+
+    <!-- Source and Destination Input (Conditional) -->
+    {% if Prediction in ["Heavy Traffic", "Worst Case"] %}
+        <div class="route-input-container">
+            <div class="container" >
+            <h3>Traffic-Free Route</h3>
+            <form action="/route" method="POST">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="source" name="source" required>
+                            <label for="source">Source Location</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="destination" name="destination" required>
+                            <label for="destination">Destination Location</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                <button class="btn btn-primary w-100 py-3" type="submit">Find Route</button></div>
+                    </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- Display Source and Destination Names -->
+{% if route %}
+<div class="route-info">
+    <center>
+        <h4>Route Details</h4>
+        <p><strong>Source:</strong> {{ source }}</p>
+        <p><strong>Destination:</strong> {{ destination }}</p>
+        <p><strong>Distance:</strong> <span id="distance">Calculating...</span></p>
+    </center>
+</div>
+{% endif %}
+
+<!-- Display Route (Conditional) -->
+{% if route %}
+    <div class="route-container">
+        <div id="map" class="graph-img"></div> <!-- Map container -->
+    </div>
+{% endif %}
+<br><br>
+
+<!-- Leaflet.js for Map Rendering -->
+{% if route %}
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([51.505, -0.09], 13);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Function to geocode place names to coordinates
+        function geocode(place, callback) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lng = parseFloat(data[0].lon);
+                        console.log(`Geocoded ${place}:`, { lat, lng }); // Debugging
+                        callback({ lat, lng });
+                    } else {
+                        alert(`Could not find coordinates for ${place}`);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error geocoding:", error);
+                    alert("Error geocoding. Please try again.");
+                });
+        }
+
+        // Function to fetch and display the route
+        function getRoute(source, destination) {
+            const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${source.lng},${source.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`;
+
+            fetch(osrmUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.routes && data.routes.length > 0) {
+                        const route = data.routes[0];
+
+                        // Extract distance (in meters) and duration (in seconds)
+                        const distanceMeters = route.distance; // Distance in meters
+                        const durationSeconds = route.duration; // Duration in seconds
+
+                        // Convert distance to kilometers
+                        const distanceKm = (distanceMeters / 1000).toFixed(2);
+
+                        // Convert duration to hours and minutes
+                        const hours = Math.floor(durationSeconds / 3600);
+                        const minutes = Math.floor((durationSeconds % 3600) / 60);
+
+                        // Display distance and time
+                        document.getElementById('distance').textContent = `${distanceKm} km`;
+                        document.getElementById('time').textContent = `${hours > 0 ? `${hours} h ` : ''}${minutes} min`;
+
+                        // Draw the route on the map
+                        const routeCoordinates = route.geometry.coordinates;
+                        const latLngs = routeCoordinates.map(coord => L.latLng(coord[1], coord[0]));
+                        L.polyline(latLngs, { color: 'blue' }).addTo(map);
+                        map.fitBounds(L.polyline(latLngs).getBounds());
+                    } else {
+                        alert("No route found!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching route:", error);
+                    alert("Error fetching route. Please try again.");
+                });
+        }
+
+        // Get source and destination from Flask template
+        const sourcePlace = "{{ source }}";
+        const destinationPlace = "{{ destination }}";
+
+        // Geocode source and destination, then display the route
+        geocode(sourcePlace, (sourceCoords) => {
+            geocode(destinationPlace, (destinationCoords) => {
+                // Add markers for source and destination
+                L.marker([sourceCoords.lat, sourceCoords.lng]).addTo(map).bindPopup("Source").openPopup();
+                L.marker([destinationCoords.lat, destinationCoords.lng]).addTo(map).bindPopup("Destination");
+
+                // Fetch and display the route
+                getRoute(sourceCoords, destinationCoords);
+
+                // Ensure the map fits within the screen
+                map.invalidateSize();
+            });
+        });
+    </script>
+{% endif %}
+</body>
+</html>
+{% endblock %}

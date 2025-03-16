@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Accident Prediction</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <!-- Favicon -->
+    <link href="{{ url_for('static', filename='img/favicon.ico') }}" rel="icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Bootstrap & Custom CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: rgb(234, 241, 241);
+            background-image: url("{{ url_for('static', filename='acci.jpg') }}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+
+        /* Container Styling */
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5); /* 10% visible white */
+            border-radius: 10px;
+            box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+        
+
+        /* Navbar Fix */
+        .nav-bar {
+            width: 100%;
+        }
+
+        /* Risk Level Styles */
+        .high-risk { color: red; font-weight: bold; }
+        .low-risk { color: green; font-weight: bold; }
+
+        /* Precautions List */
+        .precautions {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .precautions li {
+            background: #ffeeba;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            list-style: none;
+        }
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center; /* Center text */
+            margin: auto;
+            max-width: 600px;
+            padding: 20px; /* Adjust width as needed */
+            background: rgba(255, 255, 255, 0.5); /* 10% visible white */
+            border-radius: 10px;
+            box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.1);
+        }
+        
+        
+        .precautions {
+            text-align: left; /* Align list items to left */
+            width: 100%;
+        }
+        
+        .precautions ul {
+            padding: 0;
+            list-style: none;
+        }
+        
+        .precautions li {
+            background: #ffeeba;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .graph-container {
+            display: flex;
+            flex-direction: column; /* Stack the images vertically */
+            justify-content: center;
+            align-items: center;
+            gap: 40px; /* Add space between images */
+            margin-top: 20px;
+            overflow: hidden; /* Prevent overflow */
+        }
+        
+        .graph-img {
+            width: 100%; /* Make the image fit the container's width */
+            max-width: 1000px; /* Max width for large screens */
+            height: auto; /* Maintain aspect ratio */
+            object-fit: contain; /* Ensures the image maintains its aspect ratio */
+            border-radius: 10px; /* Optional: Rounded corners */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow effect */
+            margin-bottom: 20px; /* Adds space between graphs */
+        }
+        
+    </style>
+</head>
+<link rel="icon" href="img/icon-deal.png">
+
+<body>
+    <!-- Navbar Start -->
+    <div class="container-xxl">
+        <div class="container-fluid nav-bar bg-transparent">
+            <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
+                <a href="" class="navbar-brand d-flex align-items-center text-center">
+                    <div class="icon p-2 me-2">
+                        <img class="img-fluid" src="{{ url_for('static', filename='img/icon-deal.png') }}" alt="Icon" style="width: 30px; height: 30px;">
+                    </div>
+                    <h1 class="m-0 text-primary">Tracc <span style="color:#0E2E50">Prediction</span></h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="{{ url_for('home') }}" class="nav-item nav-link active">HOME</a>
+                        <a href="{{ url_for('index') }}" class="nav-item nav-link">TRAFFIC</a>
+                        <a href="{{ url_for('predict_accident') }}" class="nav-item nav-link">ACCIDENT</a>
+                        <a href="{{ url_for('contact') }}" class="nav-item nav-link">CONTACT</a>
+                    </div>
+                    <a href="{{ url_for('logout')}}" class="btn btn-primary px-3 d-none d-lg-flex">LOGOUT</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Navbar End -->
+    <br>
+    <!-- Accident Prediction Form Start -->
+    <div class="container">
+        <h2>Accident Prediction</h2>
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="form-floating">
+                        <select class="form-control" id="day" name="day" required>
+                            <option value="Rainy">Rainy</option>
+                            <option value="Clear">Clear</option>
+                            <option value="Foggy">Foggy</option>
+                            <option value="Stormy">Stormy</option>
+                            <option value="Snowy">Snowy</option>
+                        </select>
+                        <label for="weather">Weather</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating">
+                        <select class="form-control" id="day" name="day" required>
+                            <option value="Highway">Highway</option>
+                            <option value="City Road">City Road</option>
+                            <option value="Mountain Road">Mountain Road</option>
+                            <option value="Rural Road">Rural Road</option>
+                        </select>
+                        <label for="road_type">Road Type</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" name="time_of_day" required>
+                        <label for="time_of_day">Time of Day</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" name="speed_limit" required>
+                        <label for="speed_limit">Speed Limit</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" name="number_of_vehicles" required>
+                        <label for="number_of_vehicles">Number of Vehicles</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" name="driver_alcohol" required>
+                        <label for="driver_alcohol">Driver Alcohol Influence (0 or 1)</label>
+                    </div>
+                </div>
+                <!-- Accident Severity -->
+                <div class="col-12">
+                    <div class="form-floating">
+                        <select class="form-control" id="day" name="day" required>
+                            <option value="Low">Low</option>
+                            <option value="Modrate">Modrate</option>
+                            <option value="High">High</option>
+                        </select>
+                        <label for="accident_severity">Accident Severity</label>
+                    </div>
+                </div>
+    
+                    <!-- Road Condition -->
+                    <div class="col-12">
+                    <div class="form-floating">
+                        <select class="form-control" id="day" name="day" required>
+                            <option value="Icy">Icy</option>
+                            <option value="Under Construction">Under Construction</option>
+                            <option value="Dry">Dry</option>
+                            <option value="Wet">Wet</option>
+                        </select>                        
+                        <label for="road_condition">Road Condition</label>
+                    </div>
+                </div>
+    
+                    <!-- Vehicle Type -->
+                    <div class="col-12">
+                    <div class="form-floating">
+                        <select class="form-control" id="day" name="day" onchange="updateBackground(this)" required>
+                            <option value="Car">Car</option>
+                            <option value="Bus">Bus</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                        </select>  
+                        <label for="vehicle_type">Vehicle Type</label>
+                    </div>
+                </div>
+    
+                    <!-- Driver Age -->
+                    <div class="col-12">
+                    <div class="form-floating">
+                        <input type="number" name="driver_age" class="form-control" required>
+                        <label for="driver_age">Driver Age</label>
+                    </div>
+                </div>
+    
+                    <!-- Driver Experience -->
+                    <div class="col-12">
+                    <div class="form-floating">
+                        <input type="number" name="driver_experience" class="form-control" required>
+                        <label for="driver_experience">Driver Experience</label>
+                    </div>
+                </div>
+    
+                    <!-- Road Lighting -->
+                    <div class="col-12">
+                    <div class="form-floating">
+                        <select class="form-control" id="day" name="day" required>
+                            <option value="Artificial Light">Artificial Light</option>
+                            <option value="Daylight">Daylight</option>
+                            <option value="No Light">No Light</option>
+                        </select>                          
+                        <label for="road_lighting">Road Lighting</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary w-100 py-3" type="submit">Predict</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Accident Prediction Form End -->
+    <script>
+        function updateBackground(e) {
+            let body = document.querySelector('body');
+            let images = {
+                "Car": "car.jpg",
+                "Bus": "bus.jpg",
+                "Truck": "truck.jpg",
+                "Motorcycle": "motorcycle.jpg",
+            };
+
+            if (images[e.value]) {
+                body.style.background = `url(${images[e.value]}) no-repeat center center fixed`;
+                body.style.backgroundSize = 'cover';
+            }
+        }
+    </script>
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- Flask Block -->
+    {% block body %}{% endblock %}
+
+</body>
+</html>
