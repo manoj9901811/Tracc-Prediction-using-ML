@@ -6,10 +6,6 @@ A web-based project that predicts traffic, accidents, and optimal routes using M
 2. Accident Prediction: Identifies accident-prone zones, assesses route safety, and provides precautionary measures.  
 3. Route Optimization: Suggests the best alternative route in case of heavy traffic for faster and safer travel.
 
-Demo:
-
-![Demo GIF](https://github.com/yourusername/yourrepo/blob/main/demo.gif)
-
 
 Screenshots:
 
@@ -26,3 +22,5 @@ Screenshots:
 ![image](https://github.com/user-attachments/assets/aef36801-c1cd-403a-a9d2-034472422e0a)
 
 ![image](https://github.com/user-attachments/assets/e5a9c154-7d12-4ee7-a9fb-f76955594dc2)
+
+
