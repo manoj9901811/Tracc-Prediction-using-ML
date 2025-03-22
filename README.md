@@ -8,7 +8,8 @@ A web-based project that predicts traffic, accidents, and optimal routes using M
 
 Demo:
 
-[![Watch Video](https://img.youtube.com/vi/7E4zp4Pc9IQ/0.jpg)](https://www.youtube.com/watch?v=7E4zp4Pc9IQ)
+![Demo GIF](https://github.com/yourusername/yourrepo/blob/main/demo.gif)
+
 
 Screenshots:
 
