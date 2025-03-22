@@ -6,10 +6,7 @@ A web-based project that predicts traffic, accidents, and optimal routes using M
 2. Accident Prediction: Identifies accident-prone zones, assesses route safety, and provides precautionary measures.  
 3. Route Optimization: Suggests the best alternative route in case of heavy traffic for faster and safer travel.
 
-<video width="600" controls>
-  <source src="https://raw.githubusercontent.com/manoj9901811/Tracc-Prediction-using-ML/main/Tracc%20Prediction.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Tracc Prediction Demo](https://raw.githubusercontent.com/manoj9901811/Tracc-Prediction-using-ML/main/demo.gif)
 
 Screenshots:
 
