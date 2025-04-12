@@ -19,7 +19,7 @@
             margin-bottom: 20px; /* Adds space between graphs */
         }
         #map {
-            height: 400px; /* Fixed height for the map */
+            height: 500px; /* Increased height for better visibility */
             width: 100%; /* Full width */
             max-width: 1000px; /* Maximum width for large screens */
             margin: 20px auto; /* Center the map horizontally and add some margin */
@@ -43,11 +43,10 @@
         </div>
     </div>
 
-    <!-- Source and Destination Input (Conditional) -->
-    {% if Prediction in ["Heavy Traffic", "Worst Case"] %}
-        <div class="route-input-container">
-            <div class="container" >
-            <h3>Traffic-Free Route</h3>
+    <!-- Source and Destination Input -->
+    <div class="route-input-container">
+        <div class="container">
+            <h3>Find Traffic-Free Route</h3>
             <form action="/route" method="POST">
                 <div class="row g-3">
                     <div class="col-12">
@@ -62,40 +61,41 @@
                             <label for="destination">Destination Location</label>
                         </div>
                     </div>
-
                     <div class="col-12">
-                <button class="btn btn-primary w-100 py-3" type="submit">Find Route</button></div>
+                        <button class="btn btn-primary w-100 py-3" type="submit">Find Route</button>
                     </div>
+                </div>
             </form>
         </div>
-    {% endif %}
+    </div>
 
     <!-- Display Source and Destination Names -->
-{% if route %}
-<div class="route-info">
-    <center>
-        <h4>Route Details</h4>
-        <p><strong>Source:</strong> {{ source }}</p>
-        <p><strong>Destination:</strong> {{ destination }}</p>
-        <p><strong>Distance:</strong> <span id="distance">Calculating...</span></p>
-    </center>
-</div>
-{% endif %}
+    {% if route %}
+    <br>
+    <div class="route-info">
+        <center>
+            <h4>Traffic Free Route</h4>
+            <p><strong>Source:</strong> {{ source }}</p>
+            <p><strong>Destination:</strong> {{ destination }}</p>
+            <p><strong>Distance:</strong> <span id="distance">Calculating...</span></p>
+        </center>
+    </div>
+    {% endif %}
 
-<!-- Display Route (Conditional) -->
-{% if route %}
+    <!-- Display Route (Conditional) -->
+    {% if route %}
     <div class="route-container">
         <div id="map" class="graph-img"></div> <!-- Map container -->
     </div>
-{% endif %}
-<br><br>
+    {% endif %}
+    <br><br>
 
-<!-- Leaflet.js for Map Rendering -->
-{% if route %}
+    <!-- Leaflet.js for Map Rendering -->
+    {% if route %}
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         // Initialize the map
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        var map = L.map('map').setView([12.9716, 77.5946], 10); // Centered around Bengaluru
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -151,8 +151,12 @@
                         // Draw the route on the map
                         const routeCoordinates = route.geometry.coordinates;
                         const latLngs = routeCoordinates.map(coord => L.latLng(coord[1], coord[0]));
-                        L.polyline(latLngs, { color: 'blue' }).addTo(map);
+                        L.polyline(latLngs, { color: 'blue', weight: 5 }).addTo(map); // Increased weight for better visibility
                         map.fitBounds(L.polyline(latLngs).getBounds());
+
+                        // Add markers for source and destination
+                        L.marker([source.lat, source.lng]).addTo(map).bindPopup("Source").openPopup();
+                        L.marker([destination.lat, destination.lng]).addTo(map).bindPopup("Destination");
                     } else {
                         alert("No route found!");
                     }
@@ -170,10 +174,6 @@
         // Geocode source and destination, then display the route
         geocode(sourcePlace, (sourceCoords) => {
             geocode(destinationPlace, (destinationCoords) => {
-                // Add markers for source and destination
-                L.marker([sourceCoords.lat, sourceCoords.lng]).addTo(map).bindPopup("Source").openPopup();
-                L.marker([destinationCoords.lat, destinationCoords.lng]).addTo(map).bindPopup("Destination");
-
                 // Fetch and display the route
                 getRoute(sourceCoords, destinationCoords);
 
@@ -182,7 +182,7 @@
             });
         });
     </script>
-{% endif %}
+    {% endif %}
 </body>
 </html>
 {% endblock %}
